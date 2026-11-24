@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Лабораторная №2 — FastCGI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: rgb(205, 203, 203);
+            margin: 0;
+            padding: 24px;
+            color: #222;
+        }
+
+        header {
+            background: rgb(191, 109, 232);
+            padding: 16px;
+            text-align: center;
+            border-radius: 8px;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 20px auto;
+            display: grid;
+            grid-template-columns: minmax(300px, 1fr) minmax(300px, 1fr);
+            gap: 20px;
+        }
+
+        .panel {
+            min-width: 0;
+            box-sizing: border-box;
+            background: #fff;
+            padding: 18px;
+            border-radius: 8px;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            margin: auto;
+        }
+
+        fieldset {
+            margin: 12px 0;
+            border: 1px solid #aaa;
+            border-radius: 6px;
+        }
+
+        fieldset label {
+            display: inline-block;
+            margin: 5px 8px 5px 0;
+        }
+
+        input,
+        select,
+        button {
+            font: inherit;
+            padding: 7px;
+        }
+
+        #error-message {
+            color: #b00020;
+            min-height: 1.3em;
+        }
+
+        .action-button {
+            background: #bf6de8;
+            border: 0;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .action-button:disabled {
+            opacity: 0.6;
+            cursor: wait;
+        }
+
+        table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th,
+        td {
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        th,
+        td {
+            border: 1px solid #aaa;
+            padding: 7px;
+            text-align: center;
+        }
+
+        #execution-info {
+            font-size: 0.95em;
+        }
+
+        .history-panel {
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 750px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+
+            .history-panel {
+                grid-column: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Лабораторная №2</h1>
+        <h2>Трескова Анастасия, Вариант: 65765</h2>
+    </header>
+
+    <main>
+        <section class="panel">
+            <h2>Координатная плоскость</h2>
+            <canvas id="coordinate-plane" width="400" height="400" role="img"></canvas>
+        </section>
+
+        <section class="panel">
+            <h2>Параметры точки</h2>
+            <form id="point-form" action="/fcgi-bin/app.jar" method="post">
+                <fieldset>
+                    <legend>X</legend>
+                    <label for="x">Введите X (от -3 до 3):</label>
+                    <input type="text" id="x" name="x" inputmode="decimal" maxlength="64" required>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Y</legend>
+                    <label><input type="checkbox" name="y" value="-4"> -4</label>
+                    <label><input type="checkbox" name="y" value="-3"> -3</label>
+                    <label><input type="checkbox" name="y" value="-2"> -2</label>
+                    <label><input type="checkbox" name="y" value="-1"> -1</label>
+                    <label><input type="checkbox" name="y" value="0"> 0</label>
+                    <label><input type="checkbox" name="y" value="1"> 1</label>
+                    <label><input type="checkbox" name="y" value="2"> 2</label>
+                    <label><input type="checkbox" name="y" value="3"> 3</label>
+                    <label><input type="checkbox" name="y" value="4"> 4</label>
+                </fieldset>
+
+                <fieldset>
+                    <legend>R</legend>
+                    <label for="r">Выберите R:</label>
+                    <select id="r" name="r">
+                        <option value="1">1</option>
+                        <option value="1.5">1.5</option>
+                        <option value="2" selected>2</option>
+                        <option value="2.5">2.5</option>
+                        <option value="3">3</option>
+                    </select>
+                </fieldset>
+
+                <p id="error-message" role="alert"></p>
+                <button class="action-button" type="submit">Проверить</button>
+            </form>
+        </section>
+
+        <section class="panel history-panel">
+            <h2>История результатов</h2>
+            <p id="execution-info" role="status">Результаты загружаются с сервера…</p>
+
+            <table id="results-table">
+                <thead>
+                    <tr>
+                        <th>X</th>
+                        <th>Y</th>
+                        <th>R</th>
+                        <th>Попадание</th>
+                        <th>Время сервера</th>
+                    </tr>
+                </thead>
+                <tbody id="results-body"></tbody>
+            </table>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
